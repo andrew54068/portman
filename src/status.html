@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>portman</title>
+<style>
+  :root { color-scheme: dark light; --bg: #0f1115; --fg: #e6e8eb; --muted: #8b929c; --line: #262a31; --chip: #1c2129;
+    --red: #fca5a5; --redbg: #3a1416; --redline: #7f1d1d; --link: #8ab4ff; }
+  @media (prefers-color-scheme: light) {
+    :root { --bg: #fafafa; --fg: #14171a; --muted: #5b6370; --line: #e2e5e9; --chip: #eef0f3;
+      --red: #991b1b; --redbg: #fdecec; --redline: #f3b4b4; --link: #1d4ed8; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--fg); }
+  header { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+    padding: 12px 16px; background: var(--bg); border-bottom: 1px solid var(--line); }
+  h1 { margin: 0; font-size: 16px; }
+  h2 { margin: 20px 0 6px; font-size: 13px; color: var(--muted); font-weight: 600; }
+  .meta { color: var(--muted); font-size: 12px; }
+  .controls { display: flex; gap: 8px; align-items: center; margin-left: auto; }
+  input[type=search] { min-height: 36px; width: 14rem; max-width: 50vw; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--chip); color: var(--fg); font: inherit; }
+  .seg { display: flex; padding: 2px; border-radius: 8px; background: var(--chip); }
+  .seg button { min-height: 32px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font: inherit; cursor: pointer; }
+  .seg button[aria-pressed=true] { background: var(--line); color: var(--fg); }
+  main { max-width: 1280px; padding: 12px 16px 32px; }
+  .alert { margin: 0 0 10px; padding: 8px 12px; border: 1px solid var(--redline); border-radius: 8px; background: var(--redbg); color: var(--red); }
+  .wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; white-space: nowrap; }
+  th { position: sticky; top: 0; color: var(--muted); font-size: 12px; font-weight: 600; }
+  tr.conflict td { background: var(--redbg); }
+  td.port { font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace; white-space: normal; min-width: 4.5rem; }
+  td.port .more { display: block; max-width: 12rem; color: var(--muted); font-size: 11px; font-weight: 400; word-break: break-word; }
+  td.where { white-space: normal; word-break: break-all; color: var(--muted); min-width: 16rem; }
+  .chip { display: inline-block; padding: 0 6px; border-radius: 999px; background: var(--chip); color: var(--muted); font-size: 12px; }
+  a { color: var(--link); }
+  ul { margin: 0; padding-left: 18px; color: var(--muted); }
+  footer { margin-top: 20px; color: var(--muted); font-size: 12px; }
+  @media (max-width: 700px) {
+    .controls { margin-left: 0; width: 100%; }
+    input[type=search] { flex: 1; max-width: none; }
+    /* Phones: one card per server instead of a table you'd have to scroll sideways. */
+    .opt, thead { display: none; }
+    table, tbody, tr, td { display: block; width: 100%; }
+    tr { padding: 10px 0; border-bottom: 1px solid var(--line); }
+    tr.conflict { padding: 10px; border-radius: 8px; background: var(--redbg); }
+    td, tr.conflict td { padding: 1px 0; border: 0; background: transparent; white-space: normal; }
+    td.port { font-size: 15px; }
+    td.name { font-weight: 600; }
+    td.kind, td.reach { display: inline-block; width: auto; margin-right: 8px; color: var(--muted); font-size: 12px; }
+    td.where { min-width: 0; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>portman <span id="host" class="meta"></span></h1>
+  <span id="summary" class="meta" aria-live="polite">Scanning…</span>
+  <div class="controls">
+    <input id="q" type="search" placeholder="Filter by name, port, folder" aria-label="Filter by name, port or folder">
+    <div class="seg" role="group" aria-label="Which ports to list">
+      <button id="exposed" type="button" aria-pressed="true">Exposed</button><button id="all" type="button" aria-pressed="false">All</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div id="error" class="alert" role="alert" hidden></div>
+  <div id="conflicts"></div>
+  <div class="wrap">
+    <table>
+      <thead><tr><th>Port</th><th>Name</th><th>Kind</th><th>Reachable from</th><th class="opt">PID</th><th class="opt">Up</th><th>Open / runs in</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <p id="hidden" class="meta"></p>
+  <section id="idle-wrap" hidden><h2>Reserved, not running</h2><ul id="idle"></ul></section>
+  <footer>Read-only. Stop a server from the dashboard's Ports tab or with <code>portman stop &lt;name|port|id&gt;</code>. Refreshes every 5 s while this tab is open.</footer>
+</main>
+<script>
+(() => {
+  // Everything from the scan is inserted as text (textContent), never as HTML: command lines can contain anything.
+  const $ = id => document.getElementById(id);
+  const REACH = { all: 'all interfaces', tailnet: 'tailnet', lan: 'LAN', loopback: 'this Mac only' };
+  const stored = (() => { try { return localStorage.getItem('portman:filter'); } catch { return null; } })();
+  let filter = stored === 'all' ? 'all' : 'exposed';
+  let snap = null;
+  let fetchedAt = 0;
+
+  const el = (tag, props, ...children) => {
+    const node = Object.assign(document.createElement(tag), props || {});
+    node.append(...children);
+    return node;
+  };
+  const ago = ms => {
+    const s = Math.max(0, ms / 1000);
+    return s < 60 ? `${Math.floor(s)}s` : s < 3600 ? `${Math.floor(s / 60)}m` : s < 86400 ? `${Math.floor(s / 3600)}h` : `${Math.floor(s / 86400)}d`;
+  };
+
+  function render() {
+    for (const id of ['exposed', 'all']) $(id).setAttribute('aria-pressed', String(filter === id));
+    if (!snap) return;
+    $('host').textContent = snap.host ? `— ${snap.host}` : '';
+    const conflicted = new Set(snap.conflicts.flatMap(c => c.apps));
+    const inView = a => filter === 'all' || a.exposed || conflicted.has(a.id);
+    const q = $('q').value.trim().toLowerCase();
+    const matches = a => !q || [a.name, a.cwd || '', a.command, ...a.ports.map(String)].some(s => s.toLowerCase().includes(q));
+    const shown = snap.apps.filter(a => inView(a) && matches(a))
+      .sort((a, b) => Number(conflicted.has(b.id)) - Number(conflicted.has(a.id)) || a.port - b.port);
+
+    $('conflicts').replaceChildren(...snap.conflicts.map(c =>
+      el('div', { className: 'alert' }, el('strong', { textContent: `Port ${c.port}: servers are competing. ` }), c.explanation)));
+    $('rows').replaceChildren(...shown.map(a => {
+      const open = a.url && a.exposed && a.kind !== 'system'
+        ? el('a', { href: a.url, textContent: a.url, target: '_blank', rel: 'noreferrer' })
+        : document.createTextNode(a.cwd || a.command);
+      return el('tr', { className: conflicted.has(a.id) ? 'conflict' : '' },
+        el('td', { className: 'port' }, String(a.port), ...(a.ports.length > 1 ? [el('span', { className: 'more', textContent: `+ ${a.ports.slice(1).join(', ')}` })] : [])),
+        el('td', { className: 'name', textContent: a.name, title: a.reservation ? `reserved as ${a.reservation}` : 'not reserved' }),
+        el('td', { className: 'kind' }, el('span', { className: 'chip', textContent: a.kind })),
+        el('td', { className: 'reach', textContent: REACH[a.scope] || a.scope }),
+        el('td', { className: 'opt', textContent: String(a.pid) }),
+        el('td', { className: 'opt', textContent: ago(Date.now() - Date.parse(a.startedAt)) }),
+        el('td', { className: 'where', title: a.command }, open));
+    }));
+    if (!shown.length) $('rows').append(el('tr', {}, el('td', { colSpan: 7, className: 'meta', textContent: q ? 'Nothing matches the filter.' : 'Nothing is listening here.' })));
+
+    const hidden = snap.apps.filter(a => !inView(a)).length;
+    $('hidden').textContent = filter === 'exposed' && hidden ? `${hidden} more listen only on this Mac. Choose All to see them.` : '';
+    $('idle').replaceChildren(...snap.idle.map(r => el('li', { textContent: `${r.port}  ${r.name}${r.project ? `  (${r.project})` : ''}` })));
+    $('idle-wrap').hidden = !snap.idle.length;
+    const exposed = snap.apps.filter(a => a.exposed).length;
+    const n = snap.conflicts.length;
+    $('summary').textContent = `${snap.apps.length} servers · ${exposed} exposed · ${n} conflict${n === 1 ? '' : 's'} · updated ${ago(Date.now() - fetchedAt)} ago`;
+  }
+
+  async function refresh() {
+    try {
+      const response = await fetch('/api/ports', { cache: 'no-store' });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`);
+      snap = body;
+      fetchedAt = Date.now();
+      $('error').hidden = true;
+    } catch (err) {
+      $('error').textContent = `Cannot reach portman: ${err.message}. Showing the last scan.`;
+      $('error').hidden = false;
+    }
+    render();
+  }
+
+  for (const id of ['exposed', 'all']) $(id).addEventListener('click', () => {
+    filter = id;
+    try { localStorage.setItem('portman:filter', id); } catch { /* private mode */ }
+    render();
+  });
+  $('q').addEventListener('input', render);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refresh(); });
+  setInterval(() => (document.visibilityState === 'visible' ? refresh() : render()), 5000);
+  refresh();
+})();
+</script>
+</body>
+</html>

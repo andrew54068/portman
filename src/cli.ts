@@ -7,6 +7,7 @@ import { check, liveHolders, type HookInput } from './hook.ts'
 import { defaultHost } from './net.ts'
 import { claim, load, PortmanError, projectOf, release } from './registry.ts'
 import { runCmd } from './run.ts'
+import { serveCmd } from './serve.ts'
 import { parsePs, scan } from './scan.ts'
 import { executeStop, planStop, resolveTarget, type StopDeps } from './stop.ts'
 import type { Snapshot } from './types.ts'
@@ -21,6 +22,7 @@ const HELP = `portman: owns every port on this Mac.
   portman release <name>            drop a reservation
   portman stop <name|port|id>       stop a server (launchd jobs need --unload) [--id=<id>] [--json]
   portman url <name>                address the MacBook Air uses for a reservation
+  portman serve [--port N]          read-only status page for this Mac and the tailnet (reserved as "portman")
   portman hook                      Claude Code PreToolUse hook: blocks server starts on taken ports (exit 2)
 
 Registry: ~/.config/portman/registry.json (override the folder with PORTMAN_HOME).
@@ -238,6 +240,8 @@ async function main(argv: string[]): Promise<number> {
       return urlCmd(rest)
     case 'run':
       return runCmd(rest)
+    case 'serve':
+      return serveCmd(rest)
     case 'hook':
       return hookCmd()
     case 'help':
