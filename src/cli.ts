@@ -3,8 +3,9 @@ import { setTimeout as sleep } from 'node:timers/promises'
 import { promisify } from 'node:util'
 import { parseArgs } from 'node:util'
 import { exec } from './exec.ts'
+import { check, liveHolders, type HookInput } from './hook.ts'
 import { defaultHost } from './net.ts'
-import { claim, load, PortmanError, release } from './registry.ts'
+import { claim, load, PortmanError, projectOf, release } from './registry.ts'
 import { parsePs, scan } from './scan.ts'
 import { executeStop, planStop, resolveTarget, type StopDeps } from './stop.ts'
 import type { Snapshot } from './types.ts'
@@ -17,6 +18,7 @@ const HELP = `portman: owns every port on this Mac.
   portman release <name>            drop a reservation
   portman stop <name|port|id>       stop a server (launchd jobs need --unload) [--id=<id>] [--json]
   portman url <name>                address the MacBook Air uses for a reservation
+  portman hook                      Claude Code PreToolUse hook: blocks server starts on taken ports (exit 2)
 
 Registry: ~/.config/portman/registry.json (override the folder with PORTMAN_HOME).
 `
@@ -197,6 +199,24 @@ async function stopCmd(args: string[]): Promise<number> {
   return result.status === 'freed' || result.status === 'gone' ? 0 : 5
 }
 
+// ---------------------------------------------------------------- hook
+
+/** Never blocks because portman itself failed: any error lets the command run. */
+async function hookCmd(): Promise<number> {
+  try {
+    let text = ''
+    for await (const chunk of process.stdin) text += chunk
+    const reason = await check(JSON.parse(text) as HookInput, { registry: load(), holders: port => liveHolders(port), projectOf })
+    if (reason) {
+      process.stderr.write(`portman: ${reason}\n`)
+      return 2
+    }
+  } catch {
+    // fall through: allow
+  }
+  return 0
+}
+
 // ---------------------------------------------------------------- main
 
 async function main(argv: string[]): Promise<number> {
@@ -213,6 +233,8 @@ async function main(argv: string[]): Promise<number> {
       return stopCmd(rest)
     case 'url':
       return urlCmd(rest)
+    case 'hook':
+      return hookCmd()
     case 'help':
     case '--help':
     case '-h':

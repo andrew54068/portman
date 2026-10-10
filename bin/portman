@@ -1,4 +1,22 @@
 #!/bin/sh
 # Resolves the symlink in ~/.local/bin back to this checkout, then runs the TypeScript CLI directly.
 dir=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
+# Node caches the stripped TypeScript here: ~40 ms off every run, which matters for the per-Bash-call hook.
+export NODE_COMPILE_CACHE="${NODE_COMPILE_CACHE:-$HOME/Library/Caches/portman}"
+if [ "$1" = hook ]; then
+  # Runs before every Bash call: skip Node unless the command itself could start a server on a port.
+  input=$(cat)
+  if command -v jq >/dev/null 2>&1; then
+    command=$(printf '%s' "$input" | jq -r '.tool_input.command // empty' 2>/dev/null)
+  else
+    command=$input
+  fi
+  case "$command" in
+    *port*|*PORT*|*http.server*|*yarn*|*npm*|*pnpm*|*bun*|*serve*|*--bind*|*--listen*) ;;
+    *" -p "[0-9]*|*" -p"[0-9]*|*" -l "[0-9]*|*" -S "*:[0-9]*|*" -b "*:[0-9]*|*" -a "*:[0-9]*) ;;
+    *) exit 0 ;;
+  esac
+  printf '%s' "$input" | /opt/homebrew/bin/node "$dir/src/hook-main.ts"
+  exit $?
+fi
 exec /opt/homebrew/bin/node "$dir/src/cli.ts" "$@"
