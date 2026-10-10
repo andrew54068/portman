@@ -1,0 +1,4 @@
+#!/bin/sh
+# Resolves the symlink in ~/.local/bin back to this checkout, then runs the TypeScript CLI directly.
+dir=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
+exec /opt/homebrew/bin/node "$dir/src/cli.ts" "$@"

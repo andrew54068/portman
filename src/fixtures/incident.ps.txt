@@ -1,0 +1,14 @@
+    1     0     1     0 Ss   ??       Wed Jul  1 16:58:59 2026     /sbin/launchd
+ 2660  2600  2660   501 Ss   ttys003  Thu Oct  8 08:59:00 2026     -zsh
+ 2957     1  2957   501 S    ??       Thu Oct  8 00:15:59 2026     /opt/homebrew/bin/node /Users/me/Documents/tools/home-hub/hub/src/server.ts
+ 3914  2660  3914   501 S+   ttys003  Thu Oct  8 09:00:00 2026     /Users/me/.local/bin/codex
+ 9300     1  9300   501 S    ??       Fri Oct  2 10:00:00 2026     /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug
+38559     1 38559   501 S    ??       Sun Sep  6 10:00:00 2026     /System/Library/CoreServices/ControlCenter.app/Contents/MacOS/ControlCenter
+66020     1 66020   501 S    ??       Sun Sep  6 10:05:00 2026     /Applications/CC Switch.app/Contents/MacOS/cc-switch
+69146     1 69146   501 S    ??       Thu Sep  3 10:00:00 2026     /Applications/OrbStack.app/Contents/MacOS/OrbStack
+70600     1 70438   501 S    ??       Sat Oct 10 13:49:58 2026     /opt/homebrew/opt/node/bin/node /opt/homebrew/bin/wrangler dev --ip 100.101.102.103 --port 8790
+70602 70600 70438   501 S    ??       Sat Oct 10 13:49:58 2026     /opt/homebrew/Cellar/node/26.8.1/bin/node --no-warnings /opt/homebrew/Cellar/cloudflare-wrangler/4.127.1/libexec/lib/node_modules/wrangler/wrangler-dist/cli.js dev --ip 100.101.102.103 --port 8790
+70630 70602 70438   501 S    ??       Sat Oct 10 13:49:59 2026     /opt/homebrew/Cellar/cloudflare-wrangler/4.127.1/libexec/lib/node_modules/wrangler/node_modules/@esbuild/darwin-arm64/bin/esbuild --service=0.25.4 --ping
+70631 70602 70438   501 S    ??       Sat Oct 10 13:49:59 2026     /opt/homebrew/Cellar/cloudflare-wrangler/4.127.1/libexec/lib/node_modules/wrangler/node_modules/@cloudflare/workerd-darwin-arm64/bin/workerd serve --binary --experimental --socket-addr=entry=100.101.102.103:8790
+88034     1 88000   501 S    ??       Wed Oct  7 10:00:00 2026     /opt/homebrew/Cellar/node/26.8.1/bin/node --require /Users/me/Documents/SideProjects/dashboard/node_modules/tsx/dist/preflight.cjs src/server/index.ts
+97215     1 97200   501 S    ??       Mon Oct  5 10:00:00 2026     /opt/homebrew/Cellar/node/26.8.1/bin/node --require /Users/me/Documents/SideProjects/dashboard/node_modules/tsx/dist/preflight.cjs src/server/index.ts
