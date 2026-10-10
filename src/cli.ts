@@ -6,6 +6,7 @@ import { exec } from './exec.ts'
 import { check, liveHolders, type HookInput } from './hook.ts'
 import { defaultHost } from './net.ts'
 import { claim, load, PortmanError, projectOf, release } from './registry.ts'
+import { runCmd } from './run.ts'
 import { parsePs, scan } from './scan.ts'
 import { executeStop, planStop, resolveTarget, type StopDeps } from './stop.ts'
 import type { Snapshot } from './types.ts'
@@ -15,6 +16,8 @@ const HELP = `portman: owns every port on this Mac.
   portman ls [--all] [--json]       servers reachable from other machines (--all: everything); --json lists all
   portman claim <name> [--port N]   reserve a port under a name and print it (idempotent; picks one if no --port)
         [--project DIR] [--kind service|preview] [--launchd LABEL] [--note TEXT] [--force]
+  portman run <name> [--bind tailnet|loopback|all] [--detach] -- <command using {port} and {ip}>
+                                    claim the name's port, start the server on it, print its URL
   portman release <name>            drop a reservation
   portman stop <name|port|id>       stop a server (launchd jobs need --unload) [--id=<id>] [--json]
   portman url <name>                address the MacBook Air uses for a reservation
@@ -233,6 +236,8 @@ async function main(argv: string[]): Promise<number> {
       return stopCmd(rest)
     case 'url':
       return urlCmd(rest)
+    case 'run':
+      return runCmd(rest)
     case 'hook':
       return hookCmd()
     case 'help':
