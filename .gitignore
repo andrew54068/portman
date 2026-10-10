@@ -3,3 +3,14 @@ node_modules/
 !.yarn/releases
 .DS_Store
 .qa/
+
+# local agent config (links into a personal skills folder)
+.claude/
+.agents/
+
+# secrets and logs
+.env
+.env.*
+*.pem
+*.key
+*.log
