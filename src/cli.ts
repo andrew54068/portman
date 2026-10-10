@@ -21,7 +21,7 @@ const HELP = `portman: owns every port on this Mac.
                                     claim the name's port, start the server on it, print its URL
   portman release <name>            drop a reservation
   portman stop <name|port|id>       stop a server (launchd jobs need --unload) [--id=<id>] [--json]
-  portman url <name>                address the MacBook Air uses for a reservation
+  portman url <name>                address other tailnet devices use for a reservation
   portman serve [--port N]          read-only status page for this Mac and the tailnet (reserved as "portman")
   portman hook                      Claude Code PreToolUse hook: blocks server starts on taken ports (exit 2)
 

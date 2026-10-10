@@ -1,5 +1,5 @@
 #!/bin/sh
-# Installs this checkout as the portman everyone uses (the CLI, the Claude Code hook, the dashboard, the status page).
+# Installs this checkout as the portman everyone uses (the CLI, the Claude Code hook and the status page).
 # macOS won't let a launchd job read ~/Documents, so the runtime is copied to ~/.local/share/portman and the status
 # page runs from there. Re-run after changing the code here.
 set -eu

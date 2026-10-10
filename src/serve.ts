@@ -110,7 +110,7 @@ export async function serveCmd(args: string[]): Promise<number> {
       if (ip) {
         try {
           await listen(port, ip, handler)
-          log(`and for the MacBook Air on http://${defaultHost()}:${port} (${ip})`)
+          log(`and for the tailnet on http://${defaultHost()}:${port} (${ip})`)
           break
         } catch (err) {
           log(`cannot bind ${ip}:${port}: ${err instanceof Error ? err.message : err}`)

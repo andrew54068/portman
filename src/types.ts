@@ -78,7 +78,7 @@ export interface Registry {
   schema: 1
   /** Ports handed out by `claim` when no port is given. */
   pool: [number, number]
-  /** Hostname the MBA uses for this Mac (MagicDNS); defaults to the local hostname. */
+  /** Hostname other tailnet devices use for this Mac (MagicDNS); defaults to the local hostname. */
   host?: string
   reservations: Record<string, Reservation>
 }
