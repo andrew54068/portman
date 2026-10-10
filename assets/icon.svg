@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>portman</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d2d66"/>
+      <stop offset="1" stop-color="#0a1230"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.58" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#3552b8" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#3552b8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="0.45" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="neck" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="prong" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#cbd5e1"/>
+      <stop offset="0.5" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#94a3b8"/>
+    </linearGradient>
+    <clipPath id="tile">
+      <rect width="1024" height="1024" rx="230"/>
+    </clipPath>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#020617" flood-opacity="0.55"/>
+    </filter>
+  </defs>
+
+  <g clip-path="url(#tile)">
+    <rect width="1024" height="1024" fill="url(#bg)"/>
+    <rect width="1024" height="1024" fill="url(#glow)"/>
+
+    <!-- cable: leaves the plug toward the lower left and runs off the tile -->
+    <path d="M420 610 C350 680 250 650 215 740 C180 830 290 880 250 980 C235 1020 200 1050 170 1090"
+          fill="none" stroke="#b45309" stroke-width="78" stroke-linecap="round" filter="url(#shadow)"/>
+    <path d="M420 610 C350 680 250 650 215 740 C180 830 290 880 250 980 C235 1020 200 1050 170 1090"
+          fill="none" stroke="#f59e0b" stroke-width="58" stroke-linecap="round"/>
+
+    <!-- the plug, drawn upright and tilted 45° so the prongs point up and to the right -->
+    <g transform="translate(575 455) rotate(45)" filter="url(#shadow)">
+      <rect x="-122" y="-345" width="68" height="215" rx="24" fill="url(#prong)"/>
+      <rect x="54" y="-345" width="68" height="215" rx="24" fill="url(#prong)"/>
+      <circle cx="-88" cy="-290" r="15" fill="#0a1230" opacity="0.55"/>
+      <circle cx="88" cy="-290" r="15" fill="#0a1230" opacity="0.55"/>
+      <path d="M-150 -170 H150 Q200 -170 198 -120 L188 20 Q184 70 140 92 Q100 112 90 132 L82 160 H-82 L-90 132 Q-100 112 -140 92 Q-184 70 -188 20 L-198 -120 Q-200 -170 -150 -170 Z"
+            fill="url(#body)"/>
+      <path d="M-150 -170 H150 Q200 -170 198 -120 L196 -96 Q20 -128 -197 -96 L-198 -120 Q-200 -170 -150 -170 Z"
+            fill="#fff7d6" opacity="0.55"/>
+      <rect x="-128" y="-30" width="256" height="20" rx="10" fill="#b45309" opacity="0.35"/>
+      <rect x="-118" y="18" width="236" height="20" rx="10" fill="#b45309" opacity="0.35"/>
+      <path d="M-82 156 H82 V225 Q82 255 52 255 H-52 Q-82 255 -82 225 Z" fill="url(#neck)"/>
+      <rect x="-82" y="185" width="164" height="14" fill="#92400e" opacity="0.35"/>
+      <rect x="-82" y="215" width="164" height="14" fill="#92400e" opacity="0.35"/>
+    </g>
+
+    <!-- spark at the prong tips -->
+    <g stroke="#fde68a" stroke-width="22" stroke-linecap="round">
+      <path d="M842 150 L884 108"/>
+      <path d="M880 222 L940 206"/>
+      <path d="M770 112 L786 54"/>
+    </g>
+
+    <!-- faint rim so the tile keeps its edge on dark pages -->
+    <rect width="1024" height="1024" rx="230" fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-width="8"/>
+  </g>
+</svg>
