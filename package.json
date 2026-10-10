@@ -1,8 +1,20 @@
 {
   "name": "portman",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Owns every port on this Mac: lists listeners, reserves ports by name, blocks collisions, stops servers safely.",
+  "description": "Owns every port on your Mac: lists listeners, reserves ports by name, blocks collisions, stops servers safely.",
+  "license": "MIT",
+  "author": "Dawson Wang",
+  "homepage": "https://github.com/andrew54068/portman#readme",
+  "repository": "github:andrew54068/portman",
+  "bugs": "https://github.com/andrew54068/portman/issues",
+  "os": [
+    "darwin"
+  ],
+  "engines": {
+    "node": ">=24.4"
+  },
   "packageManager": "yarn@4.10.3",
   "bin": "bin/portman",
   "scripts": {
