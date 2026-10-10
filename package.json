@@ -1,0 +1,16 @@
+{
+  "name": "portman",
+  "private": true,
+  "type": "module",
+  "description": "Owns every port on this Mac: lists listeners, reserves ports by name, blocks collisions, stops servers safely.",
+  "packageManager": "yarn@4.10.3",
+  "bin": "bin/portman",
+  "scripts": {
+    "test": "node --test",
+    "typecheck": "tsc -p ."
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2",
+    "typescript": "^5.9.3"
+  }
+}
